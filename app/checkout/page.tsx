@@ -90,35 +90,17 @@ export default function Checkout() {
   useEffect(() => {
     // Validate that we have a valid plan and cycle
     if (!planId || !cycle || (cycle !== 'monthly' && cycle !== 'yearly')) {
-      router.push('/pricing');
+      router.push('/features');
       return;
     }
     
     const selectedPlan = pricingPlans.find(p => p.id === planId);
     if (!selectedPlan) {
-      router.push('/pricing');
+      router.push('/features');
       return;
     }
     
     setPlan(selectedPlan);
-    
-    // Check if user is authenticated
-    const checkAuth = async () => {
-      try {
-        const response = await fetch('/api/auth/check');
-        const data = await response.json();
-        
-        if (!data.authenticated) {
-          router.push('/login?returnUrl=/pricing');
-        } else if (data.hasActiveSubscription) {
-          router.push('/dashboard');
-        }
-      } catch (error) {
-        console.error('Error checking auth:', error);
-      }
-    };
-    
-    checkAuth();
   }, [planId, cycle, router]);
   
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -215,29 +197,11 @@ export default function Checkout() {
       setCheckoutError('');
       
       try {
-        // Create subscription
-        const response = await fetch('/api/subscriptions', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            planName: plan?.name,
-            planId: planId,
-            billingCycle: cycle,
-            paymentMethod: 'credit_card',
-            paymentId: `sim_${Date.now()}`, // Simulated payment ID
-          }),
-        });
+        // Simulate payment processing
+        await new Promise(resolve => setTimeout(resolve, 1500));
         
-        const data = await response.json();
-        
-        if (response.ok) {
-          // Redirect to dashboard after successful subscription
-          router.push('/dashboard');
-        } else {
-          setCheckoutError(data.error || 'Failed to process payment');
-        }
+        // For demo purposes, we'll just redirect to success page
+        router.push('/dashboard');
       } catch (error) {
         console.error('Checkout error:', error);
         setCheckoutError('An unexpected error occurred. Please try again.');
@@ -249,7 +213,7 @@ export default function Checkout() {
   
   if (!plan) {
     return (
-      <main className="min-h-screen flex flex-col">
+      <main className="min-h-screen flex flex-col bg-gradient-to-b from-[#1e293b] to-[#0f172a] text-white">
         <Navbar />
         <div className="flex-grow flex items-center justify-center">
           <div className="animate-spin h-10 w-10 border-4 border-[#ff9800] rounded-full border-t-transparent"></div>
@@ -260,13 +224,13 @@ export default function Checkout() {
   }
   
   return (
-    <main className="min-h-screen flex flex-col bg-gradient-to-b from-[#1e293b] to-[#0f172a]">
+    <main className="min-h-screen flex flex-col bg-gradient-to-b from-[#1e293b] to-[#0f172a] text-white">
       <Navbar />
       
       <div className="flex-grow container mx-auto px-4 py-12">
         <div className="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8">
           <div className="md:col-span-2">
-            <h1 className="text-2xl font-bold mb-6">Checkout</h1>
+            <h1 className="text-2xl font-bold mb-6 text-white">Complete Your Purchase</h1>
             
             {checkoutError && (
               <div className="mb-4 p-3 bg-red-500/20 border border-red-500 rounded-md">
@@ -274,33 +238,33 @@ export default function Checkout() {
               </div>
             )}
             
-            <div className="bg-[#1e293b]/80 backdrop-blur-sm p-6 rounded-lg shadow-lg mb-6">
-              <h2 className="text-lg font-semibold mb-4">Payment Information</h2>
+            <div className="bg-white/10 backdrop-blur-sm p-6 rounded-lg shadow-lg mb-6">
+              <h2 className="text-lg font-semibold mb-4 text-white">Payment Information</h2>
               
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
-                  <label htmlFor="cardName" className="block text-sm font-medium mb-1">Cardholder Name</label>
+                  <label htmlFor="cardName" className="block text-sm font-medium mb-1 text-gray-300">Cardholder Name</label>
                   <input
                     type="text"
                     id="cardName"
                     name="cardName"
                     value={formData.cardName}
                     onChange={handleChange}
-                    className="w-full p-2 bg-[#1e293b] border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-[#ff9800]"
+                    className="w-full p-2 bg-[#1e293b] border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-[#ff9800] text-white"
                     placeholder="Name on card"
                   />
                   {errors.cardName && <p className="text-red-500 text-xs mt-1">{errors.cardName}</p>}
                 </div>
                 
                 <div>
-                  <label htmlFor="cardNumber" className="block text-sm font-medium mb-1">Card Number</label>
+                  <label htmlFor="cardNumber" className="block text-sm font-medium mb-1 text-gray-300">Card Number</label>
                   <input
                     type="text"
                     id="cardNumber"
                     name="cardNumber"
                     value={formData.cardNumber}
                     onChange={handleChange}
-                    className="w-full p-2 bg-[#1e293b] border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-[#ff9800]"
+                    className="w-full p-2 bg-[#1e293b] border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-[#ff9800] text-white"
                     placeholder="1234 5678 9012 3456"
                     maxLength={19}
                   />
@@ -309,14 +273,14 @@ export default function Checkout() {
                 
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label htmlFor="expiryDate" className="block text-sm font-medium mb-1">Expiry Date</label>
+                    <label htmlFor="expiryDate" className="block text-sm font-medium mb-1 text-gray-300">Expiry Date</label>
                     <input
                       type="text"
                       id="expiryDate"
                       name="expiryDate"
                       value={formData.expiryDate}
                       onChange={handleChange}
-                      className="w-full p-2 bg-[#1e293b] border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-[#ff9800]"
+                      className="w-full p-2 bg-[#1e293b] border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-[#ff9800] text-white"
                       placeholder="MM/YY"
                       maxLength={5}
                     />
@@ -324,14 +288,14 @@ export default function Checkout() {
                   </div>
                   
                   <div>
-                    <label htmlFor="cvv" className="block text-sm font-medium mb-1">CVV</label>
+                    <label htmlFor="cvv" className="block text-sm font-medium mb-1 text-gray-300">CVV</label>
                     <input
                       type="text"
                       id="cvv"
                       name="cvv"
                       value={formData.cvv}
                       onChange={handleChange}
-                      className="w-full p-2 bg-[#1e293b] border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-[#ff9800]"
+                      className="w-full p-2 bg-[#1e293b] border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-[#ff9800] text-white"
                       placeholder="123"
                       maxLength={4}
                     />
@@ -341,7 +305,7 @@ export default function Checkout() {
                 
                 <button
                   type="submit"
-                  className="w-full py-3 bg-[#ff9800] text-white rounded-md hover:bg-[#e68a00] transition-all duration-300 flex items-center justify-center mt-6"
+                  className="w-full py-3 bg-gradient-to-r from-[#ff9800] to-[#ff5722] text-white rounded-md hover:opacity-90 transition-all duration-300 flex items-center justify-center mt-6"
                   disabled={isLoading}
                 >
                   {isLoading ? (
@@ -361,4 +325,49 @@ export default function Checkout() {
           </div>
           
           <div className="md:col-span-1">
-            <div className="bg-[#1e293b]/80 backdrop-blur-sm p-6
+            <div className="bg-white/10 backdrop-blur-sm p-6 rounded-lg shadow-lg sticky top-24">
+              <h2 className="text-lg font-semibold mb-4 text-white">Order Summary</h2>
+              
+              <div className="mb-4 pb-4 border-b border-gray-700">
+                <div className="flex justify-between mb-2">
+                  <span className="text-gray-300">Plan</span>
+                  <span className="font-medium text-white">{plan.name}</span>
+                </div>
+                <div className="flex justify-between mb-2">
+                  <span className="text-gray-300">Billing</span>
+                  <span className="font-medium text-white capitalize">{cycle}</span>
+                </div>
+              </div>
+              
+              <div className="mb-4">
+                <h3 className="text-sm font-medium mb-2 text-gray-300">Features included:</h3>
+                <ul className="space-y-1">
+                  {plan.features.map((feature, index) => (
+                    <li key={index} className="flex items-start text-sm">
+                      <svg className="w-4 h-4 text-[#ff9800] mr-2 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                      </svg>
+                      <span className="text-gray-300">{feature}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+              
+              <div className="pt-4 border-t border-gray-700">
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-300">Total</span>
+                  <div className="text-right">
+                    <span className="text-xl font-bold text-white">${cycle === 'monthly' ? plan.price.monthly : plan.price.yearly}</span>
+                    <span className="block text-xs text-gray-400">{cycle === 'monthly' ? 'per month' : 'per year'}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <Footer />
+    </main>
+  );
+}
